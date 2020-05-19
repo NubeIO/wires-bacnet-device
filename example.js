@@ -4,7 +4,18 @@
 //
 
 
+const aedes = require('aedes')()
+const server = require('net').createServer(aedes.handle)
+const port = 1883
 
+
+var mqtt = require('mqtt')
+var client  = mqtt.connect('mqtt://0.0.0.0:1883')
+ 
+
+server.listen(port, function () {
+  console.log('server started and listening on port ', port)
+})
 
 const BACnetDevice = require('./index.js');
 const BE = require('@biancoroyal/bacstack').enum;
@@ -76,7 +87,7 @@ inpPresentValue4.value = 10;// Set an initial value for the data point's "presen
 
 
 
-
+client.on('connect', function () {
 
 console.log("connected to broker")
 
@@ -90,4 +101,4 @@ Object.keys(dev.objects).forEach(objType => {
 	});
 });
 
-
+});
