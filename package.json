@@ -1,0 +1,30 @@
+{
+  "name": "@uq-its-ss/bacnet-device",
+  "version": "1.0.6",
+  "description": "Interface for implementing a BACnet device",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uq-its-ss/bacnet-device.git"
+  },
+  "keywords": [
+    "nodejs",
+    "bacnet",
+    "bbmd"
+  ],
+  "author": "Adam Nielsen <adam.nielsen@uq.edu.au>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/uq-its-ss/bacnet-device/issues"
+  },
+  "homepage": "https://github.com/uq-its-ss/bacnet-device#readme",
+  "dependencies": {
+    "@biancoroyal/bacstack": "0.0.1-beta.22",
+    "@types/node": "^14.0.1",
+    "debug": "^4.1.1"
+  },
+  "devDependencies": {}
+}
