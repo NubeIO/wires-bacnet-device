@@ -86,45 +86,7 @@ client.on('writeProperty', (data) => {
   if (data.payload.value.property.index === 0xFFFFFFFF) {
     property = data.payload.value.value;
 
-    // function arrType(arr, pri, value) {
-    //   let a = arr["1:0"][87]
-    //   for (p in a[0]) {
-    //     if (parseInt(p) === pri) {
-    //       a[0][p][0].value = value
-    //       break;
-    //     };
-    //   };
-
-    // };
-
-    // let pri = property2 = data.payload.value.priority;
-    // let val = property2 = data.payload.value.value[0].value;
-
-    // arrType(dataStore, pri, 23)
-
-    // let priorityArray = dataStore["1:0"][87][0]
-
-    // let priorityValue;
-    // let priorityNum;
-    // let priorityArr;
-
-    // for (p in priorityArray) {
-
-
-    //   priorityValue = priorityArray[p][0].value
-    //   priorityHighest = p
-    //   priorityArr = { priorityNum: p, arr: priorityArray[p][0] }
-
-    //   if (priorityArray[p][0].value != null) {
-    //     break;
-    //   }
-
-    // }
-    
-
-    // dataStore["1:0"][85][0].value = priorityValue // update PV
-    // property2 = data.payload.value.value[0].value;
-    // let res = dataStore["1:0"][85][0].value = property2
+ 
     client.simpleAckResponse(data.header.sender, data.service, data.invokeId);
   } else {
     const slot = property[data.payload.property.index];
