@@ -152,25 +152,34 @@ class BACnetDevice extends BACnetObject {
 		this.client.on('subscribeCov', this.onSubscribeCov.bind(this));
 		this.client.on('subscribeProperty', this.onSubscribeProperty.bind(this));
 
-		mqttClient.subscribe('point/pub', function (err) {
+		mqttClient.subscribe('point/pub/ao', function (err) {
 			// console.log()
 
 		})
+
+		/**
+			 Will subscribe to topic point/pub/ao
+			 Send a value of 122 @ 12 {"instance":123,"objInstance":1,"objType":1,"priorityValue":122,"priorityNum":12}
+			 Send null (to relase a point) {"instance":123,"objInstance":1,"objType":1,"priorityValue":null,"priorityNum":12}
+			 Send a value of 116 @ 16 {"instance":123,"objInstance":1,"objType":1,"priorityValue":116,"priorityNum":16}
+ 		*/
+
+
 		mqttClient.on('message', (topic, message) => {
 			// message is Buffer
 			console.log(message.toString())
-			if (topic !== 'point/pub') return;
+			if (topic !== 'point/pub/ao') return;
 			try {
 				let data = JSON.parse(message)
-				console.log(data.priorityValue)
-
+			
+				console.log(111111111)
 				const object = this.getObject(data.objInstance, data.objType);
 				let property3 = object.getProperty(BE.PropertyIdentifier.PRIORITY_ARRAY);
 				let value2 = this.encodePropValue(property3)
 				// console.log(object)
 
-				let pri = data.priorityValue;
-				let val = data.priorityNum;
+				let pri = data.priorityNum;
+				let val = data.priorityValue;
 
 				function arrType(arr, pri, value) {
 
@@ -188,7 +197,7 @@ class BACnetDevice extends BACnetObject {
 				}
 
 				let aa = arrType(value2, pri, val)
-				console.log(aa)
+			
 
 
 				let Arr = [];
