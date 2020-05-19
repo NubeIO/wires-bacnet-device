@@ -3,6 +3,10 @@
 // Top level structure for a device object.
 //
 
+
+var mqtt = require('mqtt')
+var mqttClient = mqtt.connect('mqtt://0.0.0.0:1883')
+
 const assert = require('assert');
 const bacnet = require('@biancoroyal/bacstack');
 const BE = bacnet.enum;
@@ -147,6 +151,97 @@ class BACnetDevice extends BACnetObject {
 		this.client.on('readPropertyMultiple', this.onReadPropertyMultiple.bind(this));
 		this.client.on('subscribeCov', this.onSubscribeCov.bind(this));
 		this.client.on('subscribeProperty', this.onSubscribeProperty.bind(this));
+
+		mqttClient.subscribe('point/pub', function (err) {
+			// console.log()
+
+		})
+		mqttClient.on('message', (topic, message) => {
+			// message is Buffer
+			console.log(message.toString())
+			if (topic !== 'point/pub') return;
+			try {
+				let data = JSON.parse(message)
+				console.log(data.priorityValue)
+
+				const object = this.getObject(data.objInstance, data.objType);
+				let property3 = object.getProperty(BE.PropertyIdentifier.PRIORITY_ARRAY);
+				let value2 = this.encodePropValue(property3)
+				// console.log(object)
+
+				let pri = data.priorityValue;
+				let val = data.priorityNum;
+
+				function arrType(arr, pri, value) {
+
+					let i;
+					for (i in arr) {
+						let arrNum = parseInt(i) + 1
+						// console.log(a[p])
+						if (arrNum === pri) {
+							arr[i].value = value
+							// break;
+						};
+
+					};
+					return arr
+				}
+
+				let aa = arrType(value2, pri, val)
+				console.log(aa)
+
+
+				let Arr = [];
+				let p;
+				for (p in aa) {
+
+					Arr.push(aa[p].value)
+
+				};
+
+				// console.log(Arr)
+				let priorityValue;
+				let priorityNum;
+				let priorityArr;
+				let q;
+				for (q in Arr) {
+					priorityValue = Arr[q]
+					priorityNum = parseInt(q) + 1
+					priorityArr = { priorityNum: parseInt(q) + 1, val: Arr[q] }
+
+
+					if (Arr[q] != null) {
+						break;
+					};
+
+				};
+
+				console.log({Arr:Arr, priorityValue:priorityValue, priorityNum:priorityNum })
+
+
+
+				const inpPresentValue2 = object.addProperty(
+					BE.PropertyIdentifier.PRIORITY_ARRAY,
+					// BE.ApplicationTags.REAL,
+				);
+
+				inpPresentValue2.value = Arr
+
+
+				const inpPresentValue23 = object.addProperty(
+					BE.PropertyIdentifier.PRESENT_VALUE,
+					BE.ApplicationTags.REAL,
+				);
+				inpPresentValue23.value = priorityValue;
+			} catch (error) {
+				console.log(error)
+			}
+
+
+
+			// client.end()
+		})
+
 	}
 
 	getProperty(propertyId) {
@@ -237,28 +332,30 @@ class BACnetDevice extends BACnetObject {
 
 	onWriteProperty(data) {
 		console.log("onWriteProperty")
-		// console.log(JSON.stringify(data))
+		console.log(JSON.stringify(data))
 		const object = this.getObject(data.payload.objectId.instance, data.payload.objectId.type);
 		if (!object) return this.client.errorResponse(data.header.sender, data.service, data.invokeId, bacnet.enum.ErrorClass.OBJECT, bacnet.enum.ErrorCode.UNKNOWN_OBJECT);
 		let property = object.getProperty(data.payload.value.property.id);
 
-		let property2 = this.getObject(data.payload.objectId.instance, data.payload.objectId.type);
+		// let property2 = this.getObject(data.payload.objectId.instance, data.payload.objectId.type);
 		let property3 = object.getProperty(BE.PropertyIdentifier.PRIORITY_ARRAY);
 		let value2 = this.encodePropValue(property3)
 
 		if (!property) return client.errorResponse(data.header.sender, data.service, data.invokeId, bacnet.enum.ErrorClass.PROPERTY, bacnet.enum.ErrorCode.UNKNOWN_PROPERTY);
-		console.log(data.payload.value.property.index)
 		if (data.payload.value.property.index === 0xFFFFFFFF) {
 			property = data.payload.value.value;
 
 			/**
 			 ------------------------------------------------------------
 			 
- 			*/
+			 */
+
+
+
 			let pri = data.payload.value.priority;
 			let val = data.payload.value.value[0].value;
 			function arrType(arr, pri, value) {
-		
+
 				let i;
 				for (i in arr) {
 					let arrNum = parseInt(i) + 1
@@ -274,14 +371,14 @@ class BACnetDevice extends BACnetObject {
 
 			let aa = arrType(value2, pri, val)
 			console.log(aa[0].value)
-		
+
 
 			let Arr = [];
 			let p;
 			for (p in aa) {
 
 				Arr.push(aa[p].value)
-		
+
 			};
 
 
@@ -300,10 +397,18 @@ class BACnetDevice extends BACnetObject {
 				};
 
 			};
-			console.log(priorityValue)
+			// let property3 = object.getProperty(BE.PropertyIdentifier.PRIORITY_ARRAY);
+			// let objectIdAndInt = this.encodePropValue(property2)
+			// let value22 = this.encodePropValue(objectIdAndInt)
+			// console.log(objectIdAndInt)
+			let objInstance = data.payload.objectId.instance
+			let objType = data.payload.objectId.type
+			let mqttRes = { instance: this.instance, objInstance: objInstance, objType: objType, priorityValue: priorityValue, priorityNum: priorityNum }
 			console.log(priorityNum)
 			console.log(priorityArr)
-			// console.log(priorityHighest)
+
+
+
 
 
 			const inpPresentValue2 = object.addProperty(
@@ -323,7 +428,9 @@ class BACnetDevice extends BACnetObject {
 			/**
 			 ------------------------------------------------------------
 			 
- 			*/
+			 */
+
+			mqttClient.publish('point/pub', JSON.stringify(mqttRes))
 
 
 			this.client.simpleAckResponse(data.header.sender, data.service, data.invokeId);

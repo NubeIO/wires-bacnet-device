@@ -3,6 +3,9 @@
 // Example for using this module.
 //
 
+
+
+
 const BACnetDevice = require('./index.js');
 const BE = require('@biancoroyal/bacstack').enum;
 const debug = require('debug')
@@ -74,11 +77,11 @@ inpPresentValue4.value = 10;// Set an initial value for the data point's "presen
 
 
 
-// console.log(exampleOut)
 
+console.log("connected to broker")
 
 console.log('Dumping objects contained within this device:');
-debug('booting %o');
+// debug('booting %o');
 Object.keys(dev.objects).forEach(objType => {
 	const objectsOfType = dev.objects[objType];
 	Object.keys(objectsOfType).forEach(objInstance => {
@@ -86,3 +89,5 @@ Object.keys(dev.objects).forEach(objType => {
 		// console.log(`\nObject ${objType}#${o.instance}:`, o.dumpProperties());
 	});
 });
+
+
